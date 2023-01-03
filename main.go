@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	//"time"
 )
 
 type Repository struct {
@@ -22,26 +23,24 @@ func (r *Repository) SetupRoutes(app *fiber.App) {
 	api.Delete("delete_book/:id", r.DeleteBook)
 	api.Get("/get_books/:id", r.GetBookByID)
 	api.Get("/books", r.GetBooks)
-}
 
-type Book struct {
-	Author    string `json"author"`
-	Title     string `json"title"`
-	Publisher string `json"publisher"`
 }
 
 func (r *Repository) GetBooks(context *fiber.Ctx) error {
-	bookModels := &[]models.Books{}
+	bookModels := &[]models.Jobs{}
 
 	err := r.DB.Find(bookModels).Error
 	if err != nil {
 		context.Status(http.StatusBadRequest).JSON(
-			&fiber.Map{"message": "could not get books"})
+			&fiber.Map{
+				"message": "could not get Jobs",
+				"status":  "error",
+			})
 		return err
 	}
 
 	context.Status(http.StatusOK).JSON(&fiber.Map{
-		"message": "books fetched successfully",
+		"message": "Jobs fetched successfully",
 		"data":    bookModels,
 	})
 	return nil
@@ -49,7 +48,7 @@ func (r *Repository) GetBooks(context *fiber.Ctx) error {
 func (r *Repository) GetBookByID(context *fiber.Ctx) error {
 
 	id := context.Params("id")
-	bookModel := &models.Books{}
+	bookModel := &models.Jobs{}
 	if id == "" {
 		context.Status(http.StatusInternalServerError).JSON(&fiber.Map{
 			"message": "id cannot be empty",
@@ -73,7 +72,7 @@ func (r *Repository) GetBookByID(context *fiber.Ctx) error {
 }
 
 func (r *Repository) DeleteBook(context *fiber.Ctx) error {
-	bookModel := models.Books{}
+	bookModel := models.Jobs{}
 	id := context.Params("id")
 	if id == "" {
 		context.Status(http.StatusInternalServerError).JSON(&fiber.Map{
@@ -97,7 +96,7 @@ func (r *Repository) DeleteBook(context *fiber.Ctx) error {
 }
 
 func (r *Repository) CreateBook(context *fiber.Ctx) error {
-	book := Book{}
+	book := models.Jobs{}
 
 	err := context.BodyParser(&book)
 
@@ -115,7 +114,7 @@ func (r *Repository) CreateBook(context *fiber.Ctx) error {
 	}
 
 	context.Status(http.StatusOK).JSON(&fiber.Map{
-		"message": "book has been added"})
+		"message": "job has been added"})
 	return nil
 }
 
