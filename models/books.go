@@ -17,6 +17,7 @@ type Jobs struct {
 	active    uint      `json"active"`
 }
 
+// ss
 func MigrateBooks(db *gorm.DB) error {
 	err := db.AutoMigrate(&Jobs{})
 	return err
