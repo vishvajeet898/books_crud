@@ -19,10 +19,11 @@ type Repository struct {
 
 func (r *Repository) SetupRoutes(app *fiber.App) {
 	api := app.Group("/api")
-	api.Post("/create_books", r.CreateBook)
-	api.Delete("delete_book/:id", r.DeleteBook)
-	api.Get("/get_books/:id", r.GetBookByID)
-	api.Get("/books", r.GetBooks)
+	api.Post("/job/create", r.CreateBook)
+	api.Post("/job/update", r.UpdateJob)
+	api.Delete("/job/delete/:id", r.DeleteBook)
+	api.Get("/job/:id", r.GetBookByID)
+	api.Get("/jobs", r.GetBooks)
 
 }
 
@@ -45,6 +46,41 @@ func (r *Repository) GetBooks(context *fiber.Ctx) error {
 	})
 	return nil
 }
+
+func (r *Repository) UpdateJob(context *fiber.Ctx) error {
+	book := models.Jobs{}
+
+	err := context.BodyParser(&book)
+	if err != nil {
+		context.Status(http.StatusUnprocessableEntity).JSON(
+			&fiber.Map{"message": "request failed"})
+		return err
+	}
+
+	bookExist := models.Jobs{
+		ID: book.ID,
+	}
+	err = r.DB.Where(bookExist).First(&bookExist).Error
+	if err != nil {
+		context.Status(http.StatusBadRequest).JSON(
+			&fiber.Map{"message": "request failed"})
+		return nil
+	}
+
+	err = r.DB.Save(book).Error
+
+	if err != nil {
+		context.Status(http.StatusBadRequest).JSON(
+			&fiber.Map{"message": "request failed"})
+		return nil
+	}
+
+	context.Status(http.StatusOK).JSON(&fiber.Map{
+		"message": "job has been updated"})
+	return nil
+
+}
+
 func (r *Repository) GetBookByID(context *fiber.Ctx) error {
 
 	id := context.Params("id")
@@ -123,6 +159,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	config := &storage.Config{
 		Host:     os.Getenv("DB_HOST"),
 		Port:     os.Getenv("DB_PORT"),
