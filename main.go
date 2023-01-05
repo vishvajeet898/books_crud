@@ -185,5 +185,5 @@ func main() {
 	app := fiber.New()
 	r.SetupRoutes(app)
 
-	app.Listen("localhost:8080")
+	app.Listen(":3000")
 }
