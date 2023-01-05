@@ -184,5 +184,6 @@ func main() {
 	}
 	app := fiber.New()
 	r.SetupRoutes(app)
-	app.Listen("0.0.0.0:8080")
+
+	app.Listen(":8080")
 }
